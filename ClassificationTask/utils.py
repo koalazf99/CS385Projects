@@ -20,6 +20,27 @@ class CrossEntropyLoss(nn.Module):
         loss = 1 / label.size()[0] * (first_ + second)
         return loss
 
+
+class RidgeLoss(nn.Module):
+    def __init__(self):
+        super(RidgeLoss, self).__init__()
+
+    def forward(self, beta, bias):
+        bias_ = bias.view(1, -1)
+        tot = torch.cat((beta, bias_), dim = 0)
+        return torch.norm(tot) ** 2
+
+
+class LassoLoss(nn.Module):
+    def __init__(self):
+        super(LassoLoss, self).__init__()
+
+    def forward(self, beta, bias):
+        bias_ = bias.view(1, -1)
+        tot = torch.cat((beta, bias_), dim=0)
+        return torch.sum(torch.abs(tot))
+
+
 if __name__ == '__main__':
     output = torch.randn(3, 5, requires_grad=True)
     label = torch.empty(3, dtype=torch.long).random_(5)

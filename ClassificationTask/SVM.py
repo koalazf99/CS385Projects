@@ -1,9 +1,11 @@
 import numpy as np
 from sklearn import svm
 from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import StandardScaler
 
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+
 
 train_dataset = datasets.MNIST(root='./data',
                                train=True,
@@ -14,21 +16,27 @@ test_dataset = datasets.MNIST(root='./data',
                               transform=transforms.ToTensor(),
                               download=True)
 # convert to numpy data
-train_data = train_dataset.train_data.numpy()
-train_label = train_dataset.train_labels.numpy()
-test_data = test_dataset.test_data.numpy()
-test_label = test_dataset.test_labels.numpy()
+train_data = train_dataset.train_data.numpy()[:2000, :]
+train_label = train_dataset.train_labels.numpy()[:2000]
+test_data = test_dataset.test_data.numpy()[:2000, :]
+test_label = test_dataset.test_labels.numpy()[:2000]
 
 # Normalization
+# print(np.max(train_data))
 train_data = train_data / 255.0
 test_data = test_data / 255.0
+# scaler = StandardScaler()
 
 train_data = train_data.reshape(train_data.shape[0], -1)
 test_data = test_data.reshape(test_data.shape[0], -1)
+# train_data = scaler.fit_transform(train_data)
+# test_data = scaler.fit_transform(test_data)
 
 # Training SVM using sklearn
-model = svm.SVC(C=5, gamma=0.05, max_iter=20)
+kernel = "poly"  # "linear" "sigmoid" "poly" "rbf"
+model = svm.SVC(C=1, gamma=0.05, kernel=kernel)
 model.fit(train_data, train_label)
+print(len(model.support_vectors_))
 
 # Training result
 train_result = model.predict(train_data)
